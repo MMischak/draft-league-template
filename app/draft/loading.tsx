@@ -1,0 +1,6 @@
+export default function DraftLoading() {
+  return <main aria-label="Draft wird geladen" className="mx-auto max-w-[1440px] animate-pulse px-4 py-6 sm:px-6 lg:px-8 lg:py-9">
+    <div className="mb-5 grid gap-4 sm:grid-cols-[1fr_300px] sm:items-end"><div><div className="h-2.5 w-24 rounded bg-[#315dc6]/18" /><div className="mt-3 h-10 w-52 rounded-lg bg-[#0f1e3a]/12" /></div><div className="ticket-cut h-24 bg-[#e93545]/45" /></div>
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]"><section className="surface overflow-hidden p-3"><div className="mb-3 h-11 rounded-lg bg-[#0f1e3a]/8" /><div className="grid min-w-[720px] grid-cols-[52px_repeat(5,minmax(110px,1fr))] gap-2 overflow-hidden">{Array.from({ length: 36 }, (_, index) => <div key={index} className={`rounded-lg bg-[#0f1e3a]/8 ${index < 6 ? 'h-9 bg-[#0f1e3a]/18' : 'h-24'}`} />)}</div></section><aside className="surface h-[620px] p-4"><div className="h-7 w-32 rounded bg-[#0f1e3a]/12" /><div className="mt-5 h-11 rounded-xl bg-[#0f1e3a]/8" /><div className="mt-3 h-8 rounded-full bg-[#0f1e3a]/6" /><div className="mt-5 space-y-3">{Array.from({ length: 7 }, (_, index) => <div key={index} className="h-12 rounded-lg bg-[#0f1e3a]/7" />)}</div></aside></div>
+  </main>
+}

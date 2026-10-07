@@ -1,0 +1,112 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+:root {
+  color-scheme: light;
+  --background: #f6f0e2;
+  --foreground: #0f1e3a;
+  --card: #fffdf7;
+  --card-foreground: #0f1e3a;
+  --popover: #fffdf7;
+  --popover-foreground: #0f1e3a;
+  --primary: #315dc6;
+  --primary-foreground: #ffffff;
+  --secondary: #236845;
+  --secondary-foreground: #ffffff;
+  --muted: #e9e2d2;
+  --muted-foreground: #657084;
+  --accent: #d79a2b;
+  --accent-foreground: #0f1e3a;
+  --destructive: #e93545;
+  --border: color-mix(in srgb, #0f1e3a 14%, transparent);
+  --input: color-mix(in srgb, #0f1e3a 18%, transparent);
+  --ring: #315dc6;
+  --radius: 0.9rem;
+}
+
+* { @apply border-border outline-ring/50; }
+html { background: var(--background); scroll-behavior: smooth; }
+body {
+  @apply bg-background text-foreground antialiased;
+  min-width: 320px;
+  min-height: 100vh;
+  background-image:
+    linear-gradient(rgba(15, 30, 58, 0.032) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 30, 58, 0.032) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--ring) 45%, transparent);
+  outline-offset: 2px;
+}
+.eyebrow { @apply font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground; }
+::selection { background: color-mix(in oklch, var(--primary) 30%, transparent); color: var(--foreground); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--background); }
+::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 999px; }
+
+.ticket-cut {
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+}
+
+.surface {
+  @apply rounded-2xl border border-[#0f1e3a]/15 bg-[#fffdf7]/90 shadow-[0_14px_38px_rgba(15,30,58,0.07)];
+}
+
+.draft-pick-card {
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.draft-pick-card:hover {
+  transform: translateY(-1px);
+}
+
+.lineup-pitch {
+  height: clamp(540px, 72vw, 760px);
+  background-color: #237a4b;
+  background-image:
+    linear-gradient(90deg, rgba(255,255,255,0.045) 50%, transparent 50%),
+    linear-gradient(180deg, rgba(9,64,37,0.12), rgba(42,145,87,0.08));
+  background-size: 25% 100%, 100% 100%;
+}
+
+.leaderboard-lineup-pitch {
+  height: clamp(440px, calc(100vh - 220px), 570px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
