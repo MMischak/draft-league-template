@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<meta name="theme-color" content="#07131b" />
+<title>ORION-7294 | Sendeturm & Kommunikationscomputer</title>
+<style>
+  :root {
+    --bg:#061018;--panel:#0b1a25;--panel2:#0d222d;--panel3:#0e2832;
+    --line:#294552;--line-soft:rgba(135,197,202,.14);--text:#edf8f5;
+    --sub:#94b3b9;--faint:#5f858d;--teal:#7de5d7;--lime:#b4f4bf;
+    --amber:#efc77c;--red:#ff8a83;--radius:17px;
+  }
+  * {box-sizing:border-box}
+  html,body {margin:0;min-height:100%;}
+  body {color:var(--text); font-family:Inter,"Segoe UI",Arial,sans-serif; background:#02070c;
+    -webkit-font-smoothing:antialiased; letter-spacing:.01em;}
+  body:before{content:"";position:fixed;inset:0;pointer-events:none;background:
+    radial-gradient(ellipse at 12% 0%,rgba(43,117,130,.19),transparent 48%),
+    radial-gradient(ellipse at 100% 85%,rgba(36,107,88,.17),transparent 46%),
+    linear-gradient(rgba(121,185,189,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(121,185,189,.028) 1px,transparent 1px);
+    background-size:auto,auto,32px 32px,32px 32px;}
+  body:after{content:"";pointer-events:none;position:fixed;inset:0;opacity:.09;
+    background:repeating-linear-gradient(0deg,transparent 0,transparent 4px,rgba(0,0,0,.44) 5px,transparent 6px)}
+  button {font:inherit}
+  .app-wrap{position:relative;z-index:1;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:15px}
+  .terminal{position:relative;width:min(1320px,100%);min-height:min(660px,calc(100dvh - 30px));height:min(780px,calc(100dvh - 30px));
+    border:1px solid #3a6670;border-radius:20px;overflow:hidden;isolation:isolate;
+    display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+    background:linear-gradient(135deg,rgba(14,36,47,.98),rgba(6,19,28,.99) 64%,rgba(8,25,33,.99));
+    box-shadow:0 0 0 5px rgba(95,174,179,.035),0 27px 80px rgba(0,0,0,.67),inset 0 1px rgba(255,255,255,.035)}
+  .terminal:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(ellipse at 70% 50%,rgba(43,118,127,.075),transparent 57%)}
+  .top-rule{height:3px;position:absolute;top:0;left:0;right:0;background:linear-gradient(90deg,transparent,var(--teal) 22%,rgba(221,246,241,.4) 50%,var(--teal) 80%,transparent);opacity:.66}
+  .header{min-height:83px;display:flex;align-items:center;gap:17px;padding:13px 31px 11px;border-bottom:1px solid var(--line-soft)}
+  .brandmark{width:53px;height:53px;display:grid;place-items:center;border:1px solid rgba(125,229,215,.35);border-radius:14px;
+    background:radial-gradient(circle at 50% 50%,rgba(125,229,215,.20),rgba(125,229,215,.05) 64%);color:var(--teal);flex:none}
+  .brandmark svg{width:35px;height:35px}
+  .brand-copy{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .eyebrow{font:700 11px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.19em;color:var(--teal)}
+  .brand-title{font-size:clamp(15px,2vw,21px);font-weight:820;letter-spacing:.025em;line-height:1.05}
+  .header-right{margin-left:auto;display:flex;align-items:center;gap:16px;white-space:nowrap}
+  .micro{font:700 11px/1.5 ui-monospace,Consolas,monospace;letter-spacing:.075em;color:var(--faint)}
+  .status-chip{display:flex;align-items:center;gap:9px;border:1px solid rgba(255,138,131,.30);border-radius:100px;
+    padding:10px 14px;color:var(--red);background:rgba(255,138,131,.055);font:800 11px/1 ui-monospace,Consolas,monospace;letter-spacing:.11em}
+  .status-chip.good{color:var(--lime);border-color:rgba(180,244,191,.38);background:rgba(180,244,191,.07)}
+  .dot{display:inline-block;width:8px;height:8px;background:currentColor;border-radius:50%;box-shadow:0 0 12px currentColor;flex:none;animation:pulse 2s infinite}
+  .main{min-height:0;position:relative;padding:28px 30px 26px}
+  .stage{height:100%;min-height:0}
+  .repair-layout{display:grid;grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);gap:25px;height:100%;min-height:0}
+  .left-pane,.right-pane{min-height:0}
+  .left-pane{display:flex;flex-direction:column;gap:14px;border:1px solid var(--line-soft);border-radius:var(--radius);padding:22px 24px;
+    background:linear-gradient(155deg,rgba(22,52,63,.48),rgba(12,28,39,.55));overflow:hidden}
+  .heading-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .tiny-stamp{padding:6px 9px;border:1px solid rgba(131,173,185,.2);border-radius:5px;font:700 10px/1 ui-monospace,Consolas,monospace;color:var(--faint);letter-spacing:.09em}
+  h1,h2,h3,p{margin:0}
+  h1{font-size:clamp(27px,3.2vw,43px);font-weight:800;line-height:1.1;letter-spacing:-.035em}
+  h2{font-size:clamp(23px,2.4vw,31px);line-height:1.15;letter-spacing:-.028em;font-weight:800}
+  h3{font-size:18px;font-weight:780}
+  .muted{color:var(--sub)}
+  .hero-label{font-size:clamp(14px,1.5vw,17px);line-height:1.48;color:var(--sub);max-width:490px}
+  .fault{color:var(--red)}
+  .divider{height:1px;background:var(--line-soft);width:100%}
+  .graphic{min-height:128px;display:grid;place-items:center;position:relative;margin:0 0 -3px;
+    background:linear-gradient(90deg,transparent 0%,rgba(18,69,78,.16) 45%,transparent 100%);border-radius:14px;overflow:hidden}
+  .graphic:before,.graphic:after{content:"";width:74%;height:1px;position:absolute;left:13%;background:linear-gradient(90deg,transparent,rgba(125,229,215,.18),transparent)}
+  .graphic:before{top:15px}.graphic:after{bottom:15px}
+  .tower-svg{height:122px;width:min(100%,310px)}
+  .graphic-badge{position:absolute;bottom:12px;right:14px;font:700 10px ui-monospace,Consolas,monospace;color:var(--faint);letter-spacing:.1em}
+  .info-panel{padding:13px 16px;border-left:3px solid var(--red);background:rgba(255,138,131,.06);border-radius:0 9px 9px 0}
+  .info-panel strong{display:block;font-size:14px;line-height:1.4;color:#ffaaa1;margin-bottom:5px}
+  .info-panel p{font-size:14px;line-height:1.5;color:var(--sub)}
+  .note{display:flex;gap:11px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line-soft);border-radius:10px;
+    font-size:13px;line-height:1.5;color:var(--sub);background:rgba(10,22,32,.45)}
+  .note svg{width:17px;height:17px;flex:none;margin-top:1px;color:var(--amber)}
+  .right-pane{display:flex;flex-direction:column;gap:16px;padding:17px 9px 10px 4px}
+  .section-line{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .step{color:var(--teal);font:800 11px/1.3 ui-monospace,Consolas,monospace;letter-spacing:.17em}
+  .hint-text{font-size:clamp(14px,1.5vw,16px);line-height:1.5;color:var(--sub)}
+  .board-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-top:4px}
+  .board-choice{position:relative;min-width:0;cursor:pointer;min-height:189px;
+    border:1px solid rgba(124,173,181,.22);border-radius:15px;padding:14px 10px 12px;
+    background:linear-gradient(165deg,rgba(33,66,74,.36),rgba(9,27,35,.48));
+    display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--text);
+    transition:border-color .2s,transform .2s,background .2s,box-shadow .2s}
+  .board-choice:hover{transform:translateY(-3px);border-color:rgba(125,229,215,.65);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+  .board-choice:focus-visible,.action:focus-visible,.back:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+  .board-choice[aria-pressed="true"]{border-color:var(--teal);background:linear-gradient(155deg,rgba(54,108,111,.38),rgba(12,40,49,.55));box-shadow:0 0 0 1px rgba(125,229,215,.3),inset 0 0 25px rgba(125,229,215,.08)}
+  .select-marker{position:absolute;top:11px;right:11px;width:18px;height:18px;border-radius:50%;border:1px solid rgba(160,205,205,.38);display:grid;place-items:center}
+  .select-marker:after{content:"";width:9px;height:9px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);transform:scale(0);transition:transform .18s}
+  .board-choice[aria-pressed="true"] .select-marker:after{transform:scale(1)}
+  .board-visual{width:100%;max-width:144px;height:110px;filter:drop-shadow(0 13px 11px rgba(0,0,0,.25))}
+  .board-code{font:800 clamp(20px,2.2vw,28px)/1 ui-monospace,Consolas,monospace;letter-spacing:.08em}
+  .board-sub{color:var(--faint);font:600 10px ui-monospace,Consolas,monospace;letter-spacing:.11em}
+  .feedback{min-height:49px;display:flex;align-items:center;gap:10px;border:1px solid var(--line-soft);background:rgba(9,23,30,.58);
+    border-radius:10px;padding:11px 14px;color:var(--sub);font-size:13px;line-height:1.45}
+  .feedback.bad{border-color:rgba(255,138,131,.32);background:rgba(255,138,131,.06);color:#ffa49a;animation:shake .34s ease}
+  .feedback svg{width:18px;height:18px;flex:none}
+  .action-row{display:flex;align-items:center;gap:12px}
+  .action{border:1px solid rgba(153,253,240,.46);border-radius:11px;padding:15px 18px;background:linear-gradient(115deg,#7addce,#97e9b9);
+    color:#07252c;font-weight:850;font-size:15px;cursor:pointer;transition:transform .16s,filter .16s;flex:1;text-align:center}
+  .action:not(:disabled):hover{transform:translateY(-1px);filter:brightness(1.06)}
+  .action:disabled{cursor:not-allowed;background:rgba(80,134,137,.17);border-color:rgba(129,171,174,.2);color:#688f94}
+  .mini-label{font:700 10px ui-monospace,Consolas,monospace;color:var(--faint);letter-spacing:.11em;white-space:nowrap}
+  .footer{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 31px;
+    border-top:1px solid var(--line-soft);font:600 10px/1.4 ui-monospace,Consolas,monospace;letter-spacing:.11em;color:var(--faint)}
+  .footer b{color:var(--teal);font-weight:700}
+  .foot-right{display:flex;align-items:center;gap:20px}
+  .foot-marker{display:inline-block;width:7px;height:7px;border:1px solid var(--teal);transform:rotate(45deg);margin-right:8px}
+  .boot{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;max-width:620px;margin:auto;text-align:center}
+  .boot-ring{width:136px;height:136px;display:grid;place-items:center;border:1px dashed rgba(125,229,215,.45);border-radius:50%;
+    background:radial-gradient(circle,rgba(125,229,215,.10),transparent 75%);position:relative;animation:spin 8s linear infinite}
+  .boot-ring:after{content:"";position:absolute;inset:-10px;border:2px solid transparent;border-top-color:var(--teal);border-bottom-color:rgba(125,229,215,.45);border-radius:50%;animation:spin 3s linear infinite reverse}
+  .boot-ring svg{width:60px;height:60px;color:var(--teal);animation:spin 8s linear infinite reverse}
+  .boot p{color:var(--sub);font-size:17px}
+  .progress{height:10px;width:100%;border:1px solid var(--line);border-radius:20px;background:rgba(0,0,0,.32);overflow:hidden}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#2c9b9a,#7de5d7,#b4f4bf);box-shadow:0 0 18px rgba(125,229,215,.75);transition:width .5s ease}
+  .boot-detail{width:100%;display:flex;align-items:center;justify-content:space-between;font:700 11px ui-monospace,Consolas,monospace;letter-spacing:.1em;color:var(--faint)}
+  .success-layout{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr);gap:26px;height:100%}
+  .success-left{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:16px;border:1px solid rgba(180,244,191,.15);
+    border-radius:var(--radius);padding:24px;background:radial-gradient(ellipse at center 34%,rgba(48,126,110,.20),transparent 70%),rgba(16,43,46,.25)}
+  .success-icon{width:112px;height:112px;position:relative;display:grid;place-items:center;flex:none}
+  .success-icon:before,.success-icon:after{content:"";position:absolute;border:1px solid rgba(180,244,191,.36);border-radius:50%;inset:7px}
+  .success-icon:after{inset:-9px;border-style:dashed;animation:spin 18s linear infinite}
+  .success-icon svg{width:64px;height:64px;color:var(--lime);filter:drop-shadow(0 0 18px rgba(180,244,191,.45))}
+  .success-left h1{font-size:clamp(25px,2.6vw,38px)}
+  .success-left p{line-height:1.53;color:var(--sub);font-size:15px}
+  .pill{padding:9px 15px;border:1px solid rgba(180,244,191,.36);color:var(--lime);
+    font:800 11px/1 ui-monospace,Consolas,monospace;letter-spacing:.12em;border-radius:100px;background:rgba(180,244,191,.07)}
+  .success-right{display:flex;flex-direction:column;gap:13px;min-height:0}
+  .logbook{flex:1;min-height:0;display:flex;flex-direction:column;gap:13px;
+    background:linear-gradient(153deg,rgba(16,44,54,.9),rgba(7,21,30,.84));border:1px solid rgba(125,229,215,.23);border-radius:var(--radius);padding:23px 25px;overflow:auto}
+  .log-header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:13px;border-bottom:1px solid var(--line-soft)}
+  .log-title{font-size:clamp(21px,2.3vw,30px);letter-spacing:-.025em}
+  .logbook p{font-size:clamp(14px,1.25vw,16px);line-height:1.59;color:#bed2d3}
+  .logbook strong{color:var(--text)}
+  .signature{padding-top:7px;border-top:1px dashed var(--line);color:var(--teal);font:700 12px/1.6 ui-monospace,Consolas,monospace;letter-spacing:.05em}
+  .success-actions{display:flex;gap:11px;align-items:center}
+  .back{background:rgba(45,89,95,.23);border:1px solid rgba(134,190,194,.26);border-radius:10px;padding:11px 16px;color:var(--sub);font-size:13px;font-weight:700;cursor:pointer}
+  .back:hover{color:var(--text);border-color:var(--teal)}
+  .archive-stamp{font:800 11px ui-monospace,Consolas,monospace;color:var(--lime);letter-spacing:.11em}
+  .object-stage{height:100%;display:flex;flex-direction:column;gap:18px;min-height:0}
+  .object-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+  .object-sub{font-size:clamp(15px,1.5vw,17px);color:var(--sub);line-height:1.6;max-width:770px}
+  .found-badge{padding:9px 13px;border-radius:100px;color:var(--amber);border:1px solid rgba(239,199,124,.27);background:rgba(239,199,124,.06);
+    font:800 11px ui-monospace,Consolas,monospace;letter-spacing:.1em;white-space:nowrap}
+  .artifact-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;min-height:0;flex:1}
+  .artifact{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:17px;padding:19px;
+    border:1px solid var(--line-soft);background:radial-gradient(ellipse at center,rgba(50,97,98,.19),transparent 74%),rgba(10,31,40,.6);border-radius:16px}
+  .artifact .board-visual{max-width:240px;height:auto;max-height:175px}
+  .artifact .board-code{font-size:32px}
+  .artifact .board-sub{font-size:11px}
+  .object-foot{border:1px solid var(--line-soft);border-radius:10px;padding:14px 18px;color:var(--sub);background:rgba(12,35,43,.5);font-size:15px;line-height:1.5}
+  .object-foot strong{color:var(--text)}
+  .manual-panel{flex:1;min-height:0;display:flex;flex-direction:column;gap:17px;padding:24px;border:1px solid var(--line-soft);
+    background:linear-gradient(160deg,rgba(23,56,64,.57),rgba(8,26,34,.65));border-radius:16px}
+  .manual-table{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;flex:1}
+  .manual-item{display:flex;align-items:center;gap:20px;border:1px solid rgba(125,229,215,.20);border-radius:13px;
+    background:rgba(6,20,28,.55);padding:19px}
+  .manual-letter{width:72px;height:72px;flex:none;display:grid;place-items:center;border:1px solid rgba(125,229,215,.38);
+    background:rgba(125,229,215,.06);color:var(--teal);border-radius:12px;font:800 44px ui-monospace,Consolas,monospace}
+  .manual-item h3{font-size:18px;margin-bottom:5px}.manual-item p{color:var(--sub);font-size:14px}
+  .notice{display:flex;align-items:center;gap:13px;padding:14px 17px;background:rgba(239,199,124,.055);border-left:3px solid var(--amber);
+    color:var(--amber);border-radius:0 9px 9px 0;font-size:14px;line-height:1.5}
+  .notice svg{width:21px;height:21px;flex:none}
+  .status-chip.info{color:var(--amber);border-color:rgba(239,199,124,.34);background:rgba(239,199,124,.06)}
+  .hidden{display:none!important}
+  @keyframes pulse{50%{opacity:.45;box-shadow:0 0 4px currentColor}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
+  @media(max-width:1040px){
+    .header{min-height:70px;padding:10px 20px}.main{padding:18px 18px 17px}.footer{padding:10px 20px}
+    .repair-layout{gap:13px;grid-template-columns:minmax(0,.89fr) minmax(0,1.11fr)}
+    .left-pane{padding:17px 17px;gap:12px}.right-pane{padding:10px 3px 8px;gap:12px}
+    .board-grid{gap:8px}.board-choice{min-height:170px;padding:10px 6px;gap:9px}.board-visual{height:91px}
+    .manual-table{gap:10px}.manual-item{gap:12px;padding:12px}.manual-letter{width:52px;height:52px;font-size:33px}
+  }
+  @media(max-height:710px) and (min-width:800px){
+    .header{min-height:67px}.main{padding-top:16px;padding-bottom:14px}.left-pane{gap:8px;padding:14px 18px}
+    h1{font-size:28px}h2{font-size:25px}.graphic{min-height:84px}.tower-svg{height:82px}
+    .hero-label{font-size:13px}.info-panel{padding:9px 12px}.info-panel p{font-size:12px}
+    .note{padding:8px 11px;font-size:12px}.right-pane{gap:9px;padding:7px 3px}
+    .board-choice{min-height:143px;gap:6px}.board-visual{height:78px}.board-code{font-size:21px}
+    .feedback{padding:7px 10px;min-height:41px}.action{padding:12px}
+    .success-left{gap:9px;padding:16px}.success-icon{width:80px;height:80px}.success-icon svg{width:48px;height:48px}
+    .logbook{gap:9px;padding:17px 21px}.logbook p{font-size:13px;line-height:1.45}
+    .artifact .board-visual{max-height:128px}.artifact{gap:10px}
+  }
+  @media(max-width:760px){
+    .app-wrap{padding:9px;align-items:stretch}.terminal{height:auto;min-height:calc(100dvh - 18px);overflow:visible;display:flex;flex-direction:column}
+    .header{padding:13px 14px}.brandmark{width:42px;height:42px}.brandmark svg{width:29px;height:29px}.header-right .micro{display:none}
+    .status-chip{padding:9px;font-size:9px}.brand-title{font-size:15px}.eyebrow{font-size:9px;letter-spacing:.11em}
+    .main{padding:14px;flex:1}.repair-layout,.success-layout{grid-template-columns:1fr;height:auto}
+    .left-pane{padding:15px}.graphic{min-height:80px}.tower-svg{height:88px}
+    .right-pane{padding:9px 0;gap:13px}.board-choice{min-height:150px}.board-visual{height:79px}.board-code{font-size:20px}
+    .footer{padding:10px 14px;font-size:9px}.foot-right{display:none}
+    .success-left{padding:22px}.success-right{min-height:0}.logbook{overflow:visible}
+    .manual-table{grid-template-columns:1fr}.manual-item{padding:13px}.manual-panel{padding:15px}
+    .artifact-grid{gap:8px}.artifact{padding:8px;gap:11px}.artifact .board-visual{max-height:105px}.artifact .board-code{font-size:23px}
+    .object-head{display:block}.found-badge{display:inline-block;margin-top:12px}
+  }
+  @media(max-width:410px){
+    .board-grid{gap:5px}.board-choice{padding:10px 3px;min-height:128px}.board-visual{height:67px}.board-code{font-size:18px}
+    .status-chip{font-size:0;padding:10px}.status-chip .dot{width:9px;height:9px}
+    .footer{letter-spacing:.02em}.artifact .board-code{font-size:19px}
+  }
+  @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="app-wrap"><div class="terminal" role="application" aria-label="ORION Forschungsstation">
+  <div class="top-rule"></div>
+  <header class="header">
+    <div class="brandmark" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="24" cy="24" r="19" opacity=".5"/><circle cx="24" cy="24" r="11" opacity=".65"/>
+        <path d="M24 4v40M4 24h40" opacity=".38"/><path d="M23 32V14l8 10-8 8Z" fill="currentColor" stroke="none"/>
+        <circle cx="24" cy="24" r="3" fill="#09282e" stroke="none"/>
+      </svg>
+    </div>
+    <div class="brand-copy">
+      <div class="eyebrow">FORSCHUNGSSTATION · ORION-7294</div>
+      <div class="brand-title" id="header-title">Kommunikationscomputer</div>
+    </div>
+    <div class="header-right">
+      <span class="micro" id="location-id">SEKTOR 02 · SENDETURM</span>
+      <div class="status-chip" id="status-chip"><span class="dot"></span><span id="chip-text">SYSTEM OFFLINE</span></div>
+    </div>
+  </header>
+  <main class="main" id="main-content"></main>
+  <footer class="footer">
+    <span><span class="foot-marker"></span>ORION LAB / SECURE TERMINAL <b>v2.4</b></span>
+    <span class="foot-right"><span>AUTH · LOCAL ACCESS</span><span id="footer-state">ARCHIV 48 · GESPERRT</span></span>
+  </footer>
+</div></div>
+<script>
+(function(){
+  'use strict';
+  const view = new URLSearchParams(location.search).get('view') || 'terminal';
+  const main = document.getElementById('main-content');
+  const chip = document.getElementById('status-chip');
+  const chipText = document.getElementById('chip-text');
+  const footerState = document.getElementById('footer-state');
+  const headerTitle = document.getElementById('header-title');
+  const locationId = document.getElementById('location-id');
+  const iconInfo = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 10v7M12 6.7v.4" stroke-linecap="round"/></svg>';
+  const iconAlert = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 9v5M12 17v.3" stroke-linecap="round"/></svg>';
+  const iconCheck = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m7.7 12 3 3 5.6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const boards = [
+    {code:'R-12',color:'#aa8e66',dark:'#33453c',trace:'#e0caa0'},
+    {code:'K-05',color:'#4b9a93',dark:'#254b4c',trace:'#b1e4d1'},
+    {code:'F-05',color:'#3b8794',dark:'#214b5a',trace:'#a2d6da'}
+  ];
+  function boardSVG(b){
+    return `<svg class="board-visual" viewBox="0 0 150 128" role="img" aria-label="Platine ${b.code}">
+      <defs><linearGradient id="g${b.code.replace('-','')}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${b.color}"/><stop offset="1" stop-color="${b.dark}"/></linearGradient></defs>
+      <rect x="24" y="14" width="102" height="98" rx="8" fill="url(#g${b.code.replace('-','')})" stroke="${b.trace}" stroke-opacity=".65" stroke-width="1.5"/>
+      ${[0,1,2,3,4,5].map(i=>`<rect x="${34+i*16}" y="7" width="7" height="9" rx="1" fill="#bfced0"/><rect x="${34+i*16}" y="111" width="7" height="10" rx="1" fill="#bfced0"/>`).join('')}
+      <path d="M36 34H53V52H64 M113 36H96V54H86 M39 93H56V76H66 M109 95H94V77H86 M76 24V39M77 102V87" stroke="${b.trace}" stroke-opacity=".85" stroke-width="2" fill="none"/>
+      <path d="M39 46H48V65H62 M110 83H101V64H89" stroke="${b.trace}" stroke-opacity=".55" stroke-width="2" fill="none"/>
+      <rect x="62" y="45" width="29" height="38" rx="3" fill="#102933" stroke="#c1d2c6" stroke-opacity=".4"/>
+      <rect x="67" y="51" width="19" height="26" rx="1" fill="#0d1c24"/><path d="M70 55h13M70 61h13M70 67h8" stroke="#609a9d" stroke-opacity=".55"/>
+      ${[0,1,2,3,4].map(i=>`<rect x="${67+i*5}" y="41" width="2" height="5" fill="#b4cdd0"/><rect x="${67+i*5}" y="83" width="2" height="5" fill="#b4cdd0"/>`).join('')}
+      <circle cx="40" cy="69" r="5" fill="#f0d288"/><circle cx="109" cy="53" r="4.5" fill="#84e6d2"/>
+      <rect x="35" y="21" width="18" height="5" rx="2" fill="#d9ddad" opacity=".65"/>
+      <text x="75" y="103" font-family="monospace" font-size="9" text-anchor="middle" fill="#def1e1" letter-spacing="2">ORION</text>
+    </svg>`;
+  }
+  function towerGraphic(){return `<svg class="tower-svg" viewBox="0 0 350 132" aria-hidden="true" fill="none">
+   <g stroke="#4f9199" stroke-opacity=".38" stroke-width="1"><path d="M0 95H350M0 55H350M35 0V132M105 0V132M245 0V132M315 0V132" stroke-dasharray="4 8"/></g>
+   <path d="M177 14 150 110H204L177 14Z" stroke="#86d9d3" stroke-width="2" stroke-linejoin="round"/><path d="M168 45H186M158 81H196M153 100 185 44 169 18M201 100 168 45 183 20" stroke="#6098a1" stroke-width="1.4"/>
+   <path d="M177 14V4" stroke="#b1e9db" stroke-width="2"/><circle cx="177" cy="4" r="3.7" fill="#fa8177" class="tower-light"/>
+   <path d="M143 35q-24 8-34 28m0 0q36 6 46-28" stroke="#86d9d3" stroke-width="2"/><path d="M212 47q23 10 30 30m0 0q-32 2-41-27" stroke="#86d9d3" stroke-width="2"/>
+   <path d="M177 14a48 48 0 0 0-36-14M177 14a64 64 0 0 1 46-12" stroke="#6dd4c3" stroke-opacity=".3" stroke-dasharray="3 6"/>
+   <path d="M122 111H232" stroke="#8dbfc0" stroke-width="3"/><path d="M33 114h70M247 114h70" stroke="#367f8c" stroke-dasharray="4 5"/>
+   <rect x="260" y="22" width="46" height="20" rx="4" fill="#0b2933" stroke="#3b707b"/><text x="283" y="35" font-family="monospace" font-size="9" text-anchor="middle" fill="#f28c84">COM-04</text>
+   <path d="M232 84h32" stroke="#f28c84" stroke-opacity=".65" stroke-dasharray="3 4"/>
+   </svg>`}
+  function setStatus(good,label){chip.classList.toggle('good',good);chip.classList.remove('info');chipText.textContent=label;}
+  function boardCard(b){return `<button type="button" class="board-choice" data-board="${b.code}" aria-pressed="false" aria-label="Platine ${b.code} auswählen"><span class="select-marker"></span>${boardSVG(b)}<span class="board-code">${b.code}</span><span class="board-sub">PLATINE / ORION</span></button>`;}
+  let selected = null;
+  let bootTimers=[];
+  function clearTimers(){bootTimers.forEach(clearTimeout);bootTimers=[];}
+  function repair(){
+    headerTitle.textContent='Kommunikationscomputer';locationId.textContent='SEKTOR 02 · SENDETURM';setStatus(false,'SYSTEM OFFLINE');footerState.textContent='ARCHIV 48 · GESPERRT';
+    main.innerHTML=`<section class="stage repair-layout" aria-label="Kommunikationscomputer reparieren">
+      <div class="left-pane">
+        <div class="heading-row"><span class="eyebrow">SYSTEMDIAGNOSE</span><span class="tiny-stamp">FEHLERCODE COM-04</span></div>
+        <div><h1 class="fault">Funkverbindung<br>unterbrochen.</h1></div>
+        <p class="hero-label">Der Sendeturm hat keinen Kontakt zur Außenwelt. Eine Reparatur ist erforderlich.</p>
+        <div class="graphic">${towerGraphic()}<span class="graphic-badge">SIGNALSTÄRKE: 00%</span></div>
+        <div class="info-panel"><strong>Diagnose: Funkplatine fehlt.</strong></div>
+        <div class="note">${iconInfo}<span><strong style="color:var(--text)">Letzter Wartungsvermerk:</strong> „Aussortierte Bauteile wurden zur Entsorgung gebracht.“</span></div>
+      </div>
+      <div class="right-pane">
+        <div class="section-line"><span class="step">SCHRITT 02 / KOMMUNIKATION</span></div>
+        <h2>Reparaturmodul<br>einsetzen</h2>
+        <p class="hint-text">Wähle die passende Platine für den Kommunikationscomputer. Überprüfe die Modulkennung anhand der Wartungsnotiz.</p>
+        <div class="board-grid" role="group" aria-label="Verfügbare Platinen">${boards.map(boardCard).join('')}</div>
+        <div class="feedback" id="feedback" role="status" aria-live="polite">${iconInfo}<span id="feedback-text">Noch keine Platine ausgewählt.</span></div>
+        <div class="action-row"><button type="button" id="install" class="action" disabled>MODUL EINSETZEN <span aria-hidden="true">→</span></button><span class="mini-label">PORT / A-01</span></div>
+      </div>
+    </section>`;
+    selected=null;
+    const cards=[...main.querySelectorAll('.board-choice')];
+    cards.forEach(el=>el.addEventListener('click',()=>{
+      selected=el.dataset.board;
+      cards.forEach(card=>card.setAttribute('aria-pressed',String(card===el)));
+      const feed=document.getElementById('feedback');feed.classList.remove('bad');
+      feed.innerHTML=`${iconInfo}<span>Modul <strong>${selected}</strong> bereit. Starte die Funktionsprüfung.</span>`;
+      document.getElementById('install').disabled=false;
+    }));
+    document.getElementById('install').addEventListener('click',()=>{
+      if(!selected)return;
+      if(selected==='F-05'){startBoot();return;}
+      const msg=selected==='R-12'
+        ?'Fehler: 12 Volt überschreiten die zulässige Spannung. Das Modul wurde ausgeworfen.'
+        :'Fehler: Modulkennung passt nicht zur Funkanlage. Überprüfe den Wartungsordner.';
+      const feed=document.getElementById('feedback');feed.classList.remove('bad');void feed.offsetWidth;feed.classList.add('bad');
+      feed.innerHTML=`${iconAlert}<span>${msg}</span>`;
+    });
+  }
+  function startBoot(){
+    selected=null;clearTimers();setStatus(false,'SYSTEMSTART');
+    main.innerHTML=`<section class="stage boot" aria-live="polite">
+      <div class="boot-ring"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M32 8v18m0 6v3"/><path d="M22 44a13 13 0 0 0 20 0"/><path d="M15 18a25 25 0 0 0 0 30m34-30a25 25 0 0 1 0 30"/><circle cx="32" cy="34" r="4" fill="currentColor"/></svg></div>
+      <div class="step">REPARATURPROTOKOLL / ORION-7294</div><h1>Kommunikationssystem<br>wird gestartet ...</h1>
+      <p id="boot-message">Modul F-05 wird überprüft.</p><div class="progress" aria-label="Startfortschritt"><div id="boot-progress" class="progress-fill"></div></div>
+      <div class="boot-detail"><span id="boot-task">MODULDIAGNOSE</span><span id="boot-percent">0%</span></div>
+    </section>`;
+    const steps=[
+      [350,17,'Stromversorgung stabilisiert.','STROMVERSORGUNG'],
+      [950,42,'Funkmodul F-05 wurde erkannt.','MODUL ERKANNT'],
+      [1590,72,'Sendeturm verbindet sich mit dem Archiv.','SIGNAL WIRD AUFGEBAUT'],
+      [2270,100,'Archivübertragung erfolgreich.','VERBINDUNG HERGESTELLT']
+    ];
+    steps.forEach(([at,percent,message,label])=>bootTimers.push(setTimeout(()=>{
+      const p=document.getElementById('boot-progress');if(!p)return;
+      p.style.width=percent+'%';document.getElementById('boot-percent').textContent=percent+'%';
+      document.getElementById('boot-message').textContent=message;document.getElementById('boot-task').textContent=label;
+    },at)));
+    bootTimers.push(setTimeout(success,3100));
+  }
+  function success(){
+    setStatus(true,'VERBINDUNG ONLINE');footerState.textContent='ARCHIV 48 · FREIGEGEBEN';
+    main.innerHTML=`<section class="stage success-layout" aria-label="Erfolgreiche Reparatur">
+      <div class="success-left">
+        <div class="success-icon">${iconCheck}</div>
+        <div class="eyebrow" style="color:var(--lime)">REPARATUR ERFOLGREICH</div>
+        <h1>Sendeturm<br>wieder online.</h1>
+        <span class="pill">FUNKSIGNAL HERGESTELLT</span>
+        <p>Der Kommunikationscomputer funktioniert wieder. Die letzte Übertragung der Forschungsgruppe wurde entschlüsselt.</p>
+      </div>
+      <div class="success-right">
+        <div class="section-line"><span class="step">EMPFANGENE DATEN / ARCHIV</span><span class="archive-stamp">● ÜBERTRAGUNG KOMPLETT</span></div>
+        <article class="logbook">
+          <div class="log-header"><div><div class="eyebrow" style="margin-bottom:8px">WIEDERHERGESTELLTE AUFZEICHNUNG</div><h2 class="log-title">Logbucheintrag 48</h2></div><span class="tiny-stamp">VERTRAULICH</span></div>
+          <p><strong>Letzte Nachricht von Team Orion</strong></p>
+          <p>„Wenn ihr diese Aufzeichnung hört, habt ihr unseren Sendeturm tatsächlich wieder zum Laufen gebracht.</p>
+          <p>Ein ungewöhnliches Signal hat unsere Forschungsstation lahmgelegt. Wir mussten die Insel überstürzt verlassen, bevor sämtliche Systeme ausfielen.</p>
+          <p>Die Rakete konnten wir nicht mehr fertigstellen. Aber die wichtigsten Forschungsergebnisse haben wir in Sicherheit gebracht. Uns geht es gut!</p>
+          <p>Danke, dass ihr unsere letzte Nachricht gefunden habt. Ihr habt bewiesen, dass die Forschung auf dieser Insel weitergehen kann.“</p>
+          <div class="signature">— TEAM ORION-7294<br>ENDE DER ÜBERTRAGUNG ■</div>
+        </article>
+        <div class="success-actions"><span class="pill">MISSION ERFÜLLT ✓</span><button type="button" class="back" id="restart">↻ Erneut starten</button></div>
+      </div>
+    </section>`;
+    document.getElementById('restart').addEventListener('click',repair);
+  }
+  function trash(){
+    headerTitle.textContent='Entsorgungsbehälter';locationId.textContent='SEKTOR 02 · MATERIAL';setStatus(false,'FUNDBERICHT');chip.classList.add('info');footerState.textContent='FUNDOBJEKTE / 03';
+    main.innerHTML=`<section class="stage object-stage" aria-label="Fundstücke aus der Mülltonne">
+      <div class="object-head"><div><div class="eyebrow" style="margin-bottom:11px">INVENTARFUND / MATERIALENTSORGUNG</div>
+        <h1>Zwischen alten Kabeln ...</h1></div><span class="found-badge">3 PLATINEN GEFUNDEN</span></div>
+      <p class="object-sub">Unter einigen Metallteilen liegen drei aussortierte Platinen. Ihre Beschriftungen sind noch lesbar. Vielleicht lässt sich eine davon für den Kommunikationscomputer verwenden?</p>
+      <div class="artifact-grid">${boards.map(b=>`<div class="artifact">${boardSVG(b)}<span class="board-code">${b.code}</span><span class="board-sub">UNGEPRÜFTES ERSATZTEIL</span></div>`).join('')}</div>
+      <div class="object-foot"><strong>Fundnotiz:</strong> Keine weitere Beschriftung vorhanden. Vielleicht erklärt der alte <strong>Wartungsordner</strong>, wofür diese Platinen gedacht sind.</div>
+    </section>`;
+  }
+  function manual(){
+    headerTitle.textContent='Wartungsordner';locationId.textContent='SEKTOR 02 · TECHNIK';setStatus(true,'DOKUMENT LESBAR');footerState.textContent='WARTUNG / BLATT 03';
+    main.innerHTML=`<section class="stage object-stage" aria-label="Wartungsanleitung">
+      <div class="object-head"><div><div class="eyebrow" style="margin-bottom:11px">TECHNISCHE DOKUMENTATION / BLATT 03</div><h1>Modulkennungen</h1></div><span class="found-badge">ARCHIVNOTIZ GEFUNDEN</span></div>
+      <p class="object-sub">Alte handschriftliche Notiz von Team Orion: „Alle Ersatzplatinen haben einen Buchstaben und eine Zahl. Daran erkennt ihr, wohin sie gehören.“</p>
+      <div class="manual-panel"><div class="step">BUCHSTABENCODE / FUNKTION</div>
+        <div class="manual-table">
+          <div class="manual-item"><div class="manual-letter">R</div><div><h3>Raketenantrieb</h3><p>Steuerung und Antrieb</p></div></div>
+          <div class="manual-item"><div class="manual-letter">K</div><div><h3>Kühlsystem</h3><p>Temperaturregelung</p></div></div>
+          <div class="manual-item"><div class="manual-letter">F</div><div><h3>Funkanlage</h3><p>Kommunikation & Sendeturm</p></div></div>
+        </div>
+        <div class="notice">${iconAlert}<span><strong>WICHTIG:</strong> Die Zahl hinter dem Buchstaben gibt die benötigte Spannung in <strong>Volt</strong> an. Nur das richtige Modul mit der richtigen Spannung kann den Computer starten.</span></div>
+      </div><div class="object-foot">Vergleicht diese Liste mit den gefundenen Platinen und mit der <strong>Fehlerdiagnose am Sendeturm</strong>.</div>
+    </section>`;
+  }
+  if(view==='trash')trash();else if(view==='manual')manual();else repair();
+})();
+</script>
+</body>
+</html>
